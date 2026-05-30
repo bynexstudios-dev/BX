@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Orders | BX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --surface: #111111;
+            --surface-2: #1a1a1a;
+            --accent: #D90429;
+            --accent-2: #8D0801;
+            --text: #f5f5f5;
+            --text-dim: #888888;
+            --border: #2a2a2a;
+            --sidebar-width: 260px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--black); color: var(--text); display: flex; min-height: 100vh; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.4; }
+        h1, h2, h3, .brand-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; text-transform: uppercase; }
+        .admin-sidebar { width: var(--sidebar-width); background: var(--surface); border-right: 1px solid var(--border); position: fixed; height: 100vh; display: flex; flex-direction: column; z-index: 10; }
+        .admin-brand { padding: 2rem; border-bottom: 1px solid var(--border); }
+        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--text); text-decoration: none; letter-spacing: 4px; }
+        .logo span { color: var(--accent); }
+        .admin-nav { padding: 2rem 0; flex: 1; }
+        .admin-nav-item { display: flex; align-items: center; padding: 1rem 2rem; color: var(--text-dim); text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s; border-left: 3px solid transparent; }
+        .admin-nav-item i { width: 24px; font-size: 1.1rem; margin-right: 10px; }
+        .admin-nav-item:hover, .admin-nav-item.active { color: var(--accent); background: var(--surface-2); border-left-color: var(--accent); }
+        .admin-nav-item.logout { margin-top: auto; color: var(--accent-2); }
+        .admin-nav-item.logout:hover { color: var(--black); background: var(--accent-2); border-left-color: var(--accent-2); }
+        .admin-main { flex: 1; margin-left: var(--sidebar-width); padding: 2rem; z-index: 5; overflow-y: auto; max-height: 100vh; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        .admin-title { font-size: 2.5rem; margin: 0; }
+        .admin-profile { display: flex; align-items: center; gap: 1rem; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; }
+        .profile-avatar { width: 44px; height: 44px; background: var(--accent); color: var(--black); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; position: relative; overflow: hidden; }
+        .stat-card-title { font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem; }
+        .stat-card-value { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; color: var(--text); }
+        .admin-table { width: 100%; border-collapse: collapse; }
+        .admin-table th, .admin-table td { padding: 1rem 0.8rem; text-align: left; border-bottom: 1px solid var(--border); }
+        .admin-table th { font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-dim); font-weight: 500; }
+        .order-card { background: var(--surface); border: 1px solid var(--border); border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.25rem; }
+        .order-row { display: grid; grid-template-columns: 1fr auto; gap: 1rem; margin-bottom: 0.75rem; color: var(--text-dim); }
+        .order-row strong { color: var(--text); }
+        .order-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+        .btn-add, .btn-action, .btn-save { background: var(--accent); color: var(--black); border: none; padding: 0.8rem 1.2rem; border-radius: 999px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+        .btn-action { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+        .btn-action:hover, .btn-add:hover, .btn-save:hover { background: var(--text); color: var(--black); }
+        .status-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 100px; padding: 0.5rem 0.8rem; border-radius: 999px; font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+        .status-pending { background: rgba(255, 62, 0, 0.12); color: var(--accent-2); border: 1px solid rgba(255, 62, 0, 0.2); }
+        .status-completed { background: rgba(204, 255, 0, 0.12); color: var(--accent); border: 1px solid rgba(204, 255, 0, 0.3); }
+        @media (max-width: 992px) { .admin-sidebar { width: 80px; } .admin-brand .logo span, .admin-brand .logo::after { display: none; } .admin-nav-item span { display: none; } .admin-nav-item i { margin-right: 0; font-size: 1.5rem; margin: 0 auto; } .admin-main { margin-left: 80px; } }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } .admin-header { flex-direction: column; align-items: flex-start; gap: 1rem; } }
+    </style>
+</head>
+<body>
+    <aside class="admin-sidebar">
+        <div class="admin-brand">
+            <a href="index.html" class="logo">B<span>X</span></a>
+        </div>
+        <nav class="admin-nav">
+            <a href="admin-dashboard.html" class="admin-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="admin-orders.html" class="admin-nav-item active">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Orders</span>
+            </a>
+            <a href="admin-products.html" class="admin-nav-item">
+                <i class="fas fa-tshirt"></i>
+                <span>Products</span>
+            </a>
+            <a href="admin-customers.html" class="admin-nav-item">
+                <i class="fas fa-users"></i>
+                <span>Customers</span>
+            </a>
+            <a href="admin-settings.html" class="admin-nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+        <a href="index.html" class="admin-nav-item logout" style="margin-bottom: 2rem;">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Back to Store</span>
+        </a>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-header">
+            <div>
+                <h1 class="admin-title">Orders</h1>
+                <p style="color: var(--text-dim); margin-top: 0.5rem;">Review and manage order history for the store.</p>
+            </div>
+            <div class="admin-profile">
+                <span id="adminProfileLabel">Admin</span>
+                <div class="profile-avatar" id="adminAvatar">A</div>
+            </div>
+        </header>
+
+        <div class="stats-grid" id="ordersStats"></div>
+
+        <div id="ordersContainer"></div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        function renderOrders() {
+            const orders = admin.getOrders();
+            const ordersContainer = document.getElementById('ordersContainer');
+            const statsGrid = document.getElementById('ordersStats');
+
+            const revenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+            const completed = orders.filter(order => order.status === 'Completed').length;
+            const pending = orders.filter(order => order.status !== 'Completed').length;
+
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-card-title">Total Orders</div>
+                    <div class="stat-card-value">${orders.length}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-title">Total Revenue</div>
+                    <div class="stat-card-value">${revenue.toLocaleString('en-US', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 })}</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-card-title">Pending Orders</div>
+                    <div class="stat-card-value">${pending}</div>
+                </div>
+            `;
+
+            if (!orders.length) {
+                ordersContainer.innerHTML = '<div class="order-card"><h3>No orders yet</h3><p style="color: var(--text-dim);">Orders will appear here once customers place them.</p></div>';
+                return;
+            }
+
+            ordersContainer.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <div class="order-row"><strong>Order ID</strong><span>#${order.id}</span></div>
+                    <div class="order-row"><strong>Customer</strong><span>${order.userEmail}</span></div>
+                    <div class="order-row"><strong>Date</strong><span>${order.createdAt}</span></div>
+                    <div class="order-row"><strong>Total</strong><span>${(order.total || 0).toLocaleString('en-US', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 })}</span></div>
+                    <div class="order-row"><strong>Status</strong><span><span class="status-badge ${order.status === 'Completed' ? 'status-completed' : 'status-pending'}">${order.status || 'Pending'}</span></span></div>
+                    <div class="order-row"><strong>Items</strong><span>${order.items.length} item(s)</span></div>
+                    <div class="order-row"><strong>Details</strong><span>${order.items.map(item => item.name).join(', ')}</span></div>
+                    <div class="order-actions">
+                        <button class="btn-action" onclick="updateOrderStatus(${order.id}, '${order.status === 'Completed' ? 'Pending' : 'Completed'}')">Mark ${order.status === 'Completed' ? 'Pending' : 'Completed'}</button>
+                        <button class="btn-action" onclick="deleteOrder(${order.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateOrderStatus(orderId, status) {
+            admin.updateOrderStatus(orderId, status);
+            renderOrders();
+        }
+
+        function deleteOrder(orderId) {
+            if (!confirm('Delete this order?')) return;
+            admin.removeOrder(orderId);
+            renderOrders();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!auth.isLoggedIn() || !auth.isAdmin()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            if (!admin) return;
+            const user = auth.getCurrentUser();
+            if (user) {
+                document.getElementById('adminProfileLabel').textContent = user.fullName || user.email;
+                document.getElementById('adminAvatar').textContent = (user.fullName || user.email).charAt(0).toUpperCase();
+            }
+            renderOrders();
+        });
+    </script>
+</body>
+</html>
